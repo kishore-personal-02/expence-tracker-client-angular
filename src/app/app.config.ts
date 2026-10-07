@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import {
   phosphorCaretDown,
+  phosphorCalendarBlank,
   phosphorChartBar,
   phosphorCheck,
   phosphorFileArrowUp,
@@ -30,6 +31,7 @@ export const appConfig: ApplicationConfig = {
     // lazy components so they never inflate the initial bundle.
     provideIcons({
       phosphorCaretDown,
+      phosphorCalendarBlank,
       phosphorChartBar,
       phosphorCheck,
       phosphorFileArrowUp,

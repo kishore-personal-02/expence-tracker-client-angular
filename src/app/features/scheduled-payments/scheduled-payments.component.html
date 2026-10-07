@@ -1,0 +1,283 @@
+<div class="dashboard scheduled-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Scheduled Payments</h1>
+      <p class="page-subtitle">
+        Plan one-time and recurring payments, then let Auto Pay run them for you automatically.
+      </p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">
+      <ng-icon name="phosphorPlus" /> New payment
+    </button>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error" role="alert">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="alert alert-success" role="status">{{ notice() }}</div>
+  }
+
+  <div class="schedule-stats">
+    <div class="stat-card">
+      <span class="stat-icon"><ng-icon name="phosphorCalendarBlank" /></span>
+      <span class="stat-value">{{ activeCount() }}</span>
+      <span class="stat-label">Active</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon"><ng-icon name="phosphorPause" /></span>
+      <span class="stat-value">{{ pausedCount() }}</span>
+      <span class="stat-label">Paused</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon"><ng-icon name="phosphorWarningCircle" /></span>
+      <span class="stat-value">{{ failedCount() }}</span>
+      <span class="stat-label">Failed</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon"><ng-icon name="phosphorClockAfternoon" /></span>
+      <span class="stat-value stat-value-date">
+        {{ nextRun() ? formatDateTime(nextRun()!.nextRunAt) : '—' }}
+      </span>
+      <span class="stat-label">Next run</span>
+    </div>
+  </div>
+
+  <div class="time-range-tabs scheduled-tabs">
+    <button class="tab-btn" [class.active]="tab() === 'scheduled'" (click)="setTab('scheduled')">
+      <ng-icon name="phosphorCalendarBlank" /> Scheduled
+    </button>
+    <button class="tab-btn" [class.active]="tab() === 'auto'" (click)="setTab('auto')">
+      <ng-icon name="phosphorRepeat" /> Auto Pay
+    </button>
+  </div>
+
+  <div class="scheduled-filters" role="group" aria-label="Filter by status">
+    @for (f of filters; track f.value) {
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="statusFilter() === f.value"
+        (click)="setFilter(f.value)"
+      >
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="scheduled-list" aria-hidden="true">
+      @for (i of [0, 1, 2]; track i) {
+        <div class="skeleton-row scheduled-skeleton">
+          <div class="skeleton sk-circle"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton sk-line mid"></div>
+            <div class="skeleton sk-line short"></div>
+          </div>
+          <div class="skeleton sk-bar"></div>
+        </div>
+      }
+    </div>
+  } @else if (!filtered().length) {
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <ng-icon [name]="tab() === 'auto' ? 'phosphorRepeat' : 'phosphorCalendarBlank'" />
+      </div>
+      <h3>{{ items().length ? 'No payments match this filter' : 'Nothing scheduled yet' }}</h3>
+      <p>
+        {{
+          items().length
+            ? 'Try a different status filter to see your other payments.'
+            : 'Create a one-time or recurring payment and we will record it for you right on time.'
+        }}
+      </p>
+      @if (!items().length) {
+        <button class="btn btn-primary btn-sm" (click)="openCreate()">
+          <ng-icon name="phosphorPlus" /> {{ tab() === 'auto' ? 'Create an Auto Pay' : 'Schedule a payment' }}
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="scheduled-list">
+      @for (item of filtered(); track item._id; let idx = $index) {
+        <article class="scheduled-item" [style.animation-delay.ms]="idx * 30">
+          <div class="scheduled-row">
+            <div class="scheduled-main">
+              <div class="expense-avatar">
+                <ng-icon [name]="categoryIcon(item.category)" />
+              </div>
+              <div class="scheduled-body">
+                <div class="scheduled-title">
+                  <span class="expense-description" [title]="item.description">{{ item.description }}</span>
+                  <span [class]="'scheduled-status is-' + item.status">
+                    <ng-icon [name]="statusMeta(item).icon" /> {{ statusMeta(item).label }}
+                  </span>
+                </div>
+                <div class="expense-meta">
+                  <span class="scheduled-payee">{{ item.payee }}</span>
+                  <span class="expense-category">{{ item.category }}</span>
+                  <span [class]="'payment-badge ' + item.paymentMethod">
+                    <ng-icon
+                      [name]="
+                        item.paymentMethod === 'upi'
+                          ? 'phosphorDeviceMobile'
+                          : item.paymentMethod === 'bank'
+                            ? 'phosphorBank'
+                            : 'phosphorMoney'
+                      "
+                    />
+                    {{ paymentLabel(item) }}
+                  </span>
+                  <span class="expense-date">{{ scheduleWindow(item) }}</span>
+                </div>
+                @if (item.status === 'scheduled' || item.status === 'failed') {
+                  <div class="scheduled-next">
+                    <ng-icon name="phosphorCalendarBlank" /> Next run {{ formatDateTime(item.nextRunAt) }}
+                  </div>
+                } @else if (item.status === 'completed') {
+                  <div class="scheduled-next">
+                    <ng-icon name="phosphorCheckCircle" /> Completed {{ formatDateTime(item.updatedAt) }}
+                  </div>
+                }
+                @if (item.status === 'failed' && item.failureReason) {
+                  <div class="scheduled-failure" role="alert">
+                    <ng-icon name="phosphorWarningCircle" /> {{ item.failureReason }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="scheduled-right">
+              <div class="expense-amount">{{ formatCurrency(item.amount) }}</div>
+              <div class="scheduled-actions">
+                @if (item.executions.length) {
+                  <button
+                    class="icon-btn"
+                    (click)="toggleExpand(item._id)"
+                    [class.active]="expandedId() === item._id"
+                    [attr.aria-expanded]="expandedId() === item._id"
+                    title="History"
+                    aria-label="Toggle history"
+                  >
+                    <ng-icon name="phosphorClockAfternoon" />
+                  </button>
+                }
+                @if (canEdit(item)) {
+                  <button
+                    class="icon-btn"
+                    (click)="openEdit(item)"
+                    [disabled]="isBusy(item._id)"
+                    title="Edit"
+                    aria-label="Edit payment"
+                  >
+                    <ng-icon name="phosphorPencilSimple" />
+                  </button>
+                }
+                @if (item.status === 'scheduled') {
+                  <button
+                    class="icon-btn"
+                    (click)="pause(item)"
+                    [disabled]="isBusy(item._id)"
+                    title="Pause"
+                    aria-label="Pause payment"
+                  >
+                    <ng-icon name="phosphorPause" />
+                  </button>
+                } @else if (item.status === 'paused') {
+                  <button
+                    class="icon-btn"
+                    (click)="resume(item)"
+                    [disabled]="isBusy(item._id)"
+                    title="Resume"
+                    aria-label="Resume payment"
+                  >
+                    <ng-icon name="phosphorPlay" />
+                  </button>
+                } @else if (item.status === 'failed') {
+                  <button
+                    class="icon-btn"
+                    (click)="runNow(item)"
+                    [disabled]="isBusy(item._id)"
+                    title="Retry now"
+                    aria-label="Retry payment now"
+                  >
+                    <ng-icon name="phosphorArrowsClockwise" />
+                  </button>
+                }
+                @if (canCancel(item)) {
+                  <button
+                    class="icon-btn danger"
+                    [class.confirming]="isConfirming(item._id)"
+                    (click)="cancel(item)"
+                    [disabled]="isBusy(item._id)"
+                    [title]="isConfirming(item._id) ? 'Click again to confirm' : 'Cancel'"
+                    aria-label="Cancel payment"
+                  >
+                    @if (isConfirming(item._id)) {
+                      <ng-icon name="phosphorCheck" />
+                    } @else {
+                      <ng-icon name="phosphorProhibit" />
+                    }
+                  </button>
+                } @else if (item.status === 'completed' || item.status === 'cancelled') {
+                  <button
+                    class="icon-btn danger"
+                    [class.confirming]="isConfirming(item._id)"
+                    (click)="remove(item)"
+                    [disabled]="isBusy(item._id)"
+                    [title]="isConfirming(item._id) ? 'Click again to confirm' : 'Delete'"
+                    aria-label="Delete payment"
+                  >
+                    @if (isConfirming(item._id)) {
+                      <ng-icon name="phosphorCheck" />
+                    } @else {
+                      <ng-icon name="phosphorTrash" />
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (expandedId() === item._id) {
+            <div class="scheduled-history">
+              <div class="history-head">
+                <ng-icon name="phosphorClockAfternoon" /> Run history
+              </div>
+              @for (run of item.executions; track $index) {
+                <div [class]="'history-item is-' + run.status">
+                  <span class="history-dot"></span>
+                  <span class="history-text">
+                    {{ formatDateTime(run.executedAt || run.occurrenceAt) }}
+                  </span>
+                  <span [class]="'scheduled-status is-' + run.status">
+                    {{
+                      run.status === 'completed'
+                        ? 'Completed'
+                        : run.status === 'failed'
+                          ? 'Failed'
+                          : 'Processing'
+                    }}
+                  </span>
+                  @if (run.error) {
+                    <span class="history-error">{{ run.error }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</div>
+
+@if (modalOpen()) {
+  <app-scheduled-modal
+    [editing]="editing()"
+    [isAutoPay]="isAutoPay()"
+    [submitting]="submitting()"
+    (closed)="closeModal()"
+    (submitted)="handleSubmit($event)"
+  />
+}

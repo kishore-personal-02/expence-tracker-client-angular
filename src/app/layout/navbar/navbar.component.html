@@ -15,6 +15,9 @@
         >
           <span class="nav-link-icon"><ng-icon name="phosphorChartBar" /></span> Dashboard
         </a>
+        <a routerLink="/scheduled" class="navbar-nav-link" routerLinkActive="active">
+          <span class="nav-link-icon"><ng-icon name="phosphorCalendarBlank" /></span> Scheduled
+        </a>
         <a routerLink="/import" class="navbar-nav-link" routerLinkActive="active">
           <span class="nav-link-icon"><ng-icon name="phosphorFileArrowUp" /></span> Import
         </a>
@@ -162,6 +165,9 @@
           (click)="closeAll()"
         >
           <span class="drawer-item-icon"><ng-icon name="phosphorChartBar" /></span> Dashboard
+        </a>
+        <a routerLink="/scheduled" class="drawer-item" routerLinkActive="active" (click)="closeAll()">
+          <span class="drawer-item-icon"><ng-icon name="phosphorCalendarBlank" /></span> Scheduled
         </a>
         <a routerLink="/import" class="drawer-item" routerLinkActive="active" (click)="closeAll()">
           <span class="drawer-item-icon"><ng-icon name="phosphorFileArrowUp" /></span> Import

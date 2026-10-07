@@ -28,5 +28,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/import/import.component').then((m) => m.ImportComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'scheduled',
+    loadComponent: () =>
+      import('./features/scheduled-payments/scheduled-payments.component').then(
+        (m) => m.ScheduledPaymentsComponent
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

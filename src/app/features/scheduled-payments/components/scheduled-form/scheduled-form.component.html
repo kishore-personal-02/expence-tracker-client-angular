@@ -1,0 +1,256 @@
+<form (submit)="onSubmit($event)" class="expense-form" novalidate>
+  @if (error()) {
+    <div class="alert alert-error" role="alert">{{ error() }}</div>
+  }
+
+  <!-- Payee -->
+  <div class="form-group">
+    <label for="payee">
+      Payee<span class="field-req">*</span>
+    </label>
+    <input
+      id="payee"
+      type="text"
+      [value]="payee()"
+      (input)="payee.set($any($event).target.value)"
+      placeholder="e.g. Landlord, Netflix, Electricity Board"
+      autocomplete="off"
+      [attr.aria-invalid]="invalid()"
+    />
+  </div>
+
+  <!-- Amount - hero input -->
+  <div class="form-group">
+    <label for="amount">
+      Amount<span class="field-req">*</span>
+    </label>
+    <div class="amount-wrap">
+      <span class="amount-currency">₹</span>
+      <input
+        id="amount"
+        type="number"
+        [value]="amount()"
+        (input)="amount.set($any($event).target.value)"
+        placeholder="0"
+        min="0"
+        step="0.01"
+        [attr.aria-invalid]="invalid()"
+      />
+    </div>
+    <div class="quick-amounts" aria-label="Quick amounts">
+      @for (amt of quickAmounts; track amt) {
+        <button
+          type="button"
+          class="quick-amount"
+          [class.active]="isQuickAmountActive(amt)"
+          (click)="quickPick(amt)"
+        >
+          ₹{{ amt }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Frequency -->
+  <div class="form-group">
+    <label for="frequency">Frequency</label>
+    <select id="frequency" [value]="frequency()" (change)="setFrequency($any($event).target.value)">
+      @for (freq of frequencies; track freq.value) {
+        <option [value]="freq.value">{{ freq.label }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Schedule dates -->
+  <div class="form-row">
+    <div class="form-group">
+      <label for="startDate">
+        Start date<span class="field-req">*</span>
+      </label>
+      <input
+        id="startDate"
+        type="date"
+        [value]="startDate()"
+        (input)="startDate.set($any($event).target.value)"
+      />
+    </div>
+    <div class="form-group">
+      <label for="stime">
+        Time<span class="field-req">*</span>
+      </label>
+      <input
+        id="stime"
+        type="time"
+        [value]="time()"
+        (input)="time.set($any($event).target.value)"
+      />
+    </div>
+  </div>
+
+  @if (isRecurring()) {
+    <div class="form-row">
+      <div class="form-group">
+        <label for="endDate">End date</label>
+        <input
+          id="endDate"
+          type="date"
+          [value]="endDate()"
+          (input)="endDate.set($any($event).target.value)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="maxOccurrences">Max occurrences</label>
+        <input
+          id="maxOccurrences"
+          type="number"
+          [value]="maxOccurrences()"
+          (input)="maxOccurrences.set($any($event).target.value)"
+          placeholder="Unlimited"
+          min="1"
+          step="1"
+        />
+      </div>
+    </div>
+    <p class="form-hint">
+      Leave both blank to repeat forever. A past start date skips straight to the next future payment.
+    </p>
+  }
+
+  <!-- Type -->
+  <div class="form-group">
+    <label>Type</label>
+    <div class="payment-toggle">
+      <button
+        type="button"
+        class="payment-pill"
+        [class.active]="!isIncome()"
+        (click)="type.set('expense')"
+      >
+        <span class="pm-icon"><ng-icon name="phosphorTrendDown" /></span> Expense
+      </button>
+      <button
+        type="button"
+        class="payment-pill income-pill"
+        [class.active]="isIncome()"
+        (click)="type.set('income')"
+      >
+        <span class="pm-icon"><ng-icon name="phosphorCoins" /></span> Income
+      </button>
+    </div>
+  </div>
+
+  <!-- Category -->
+  @if (!isIncome()) {
+    <div class="form-group">
+      <label>Category</label>
+      <div class="category-grid">
+        @for (cat of categories(); track cat) {
+          <button
+            type="button"
+            class="category-chip"
+            [class.active]="category() === cat"
+            (click)="category.set(cat)"
+          >
+            <span class="category-chip-icon"><ng-icon [name]="getCategoryIcon(cat)" /></span>
+            <span class="category-chip-label">{{ cat }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Payment method -->
+    <div class="form-group">
+      <label>Payment method</label>
+      <div class="payment-toggle">
+        <button
+          type="button"
+          class="payment-pill"
+          [class.active]="paymentMethod() === 'cash'"
+          (click)="paymentMethod.set('cash')"
+        >
+          <span class="pm-icon"><ng-icon name="phosphorMoney" /></span> Cash
+        </button>
+        <button
+          type="button"
+          class="payment-pill"
+          [class.active]="paymentMethod() === 'upi'"
+          (click)="paymentMethod.set('upi')"
+        >
+          <span class="pm-icon"><ng-icon name="phosphorDeviceMobile" /></span> UPI
+        </button>
+        <button
+          type="button"
+          class="payment-pill"
+          [class.active]="paymentMethod() === 'bank'"
+          (click)="paymentMethod.set('bank')"
+        >
+          <span class="pm-icon"><ng-icon name="phosphorBank" /></span> Bank
+        </button>
+      </div>
+    </div>
+
+    @if (paymentMethod() === 'upi') {
+      <div class="form-group">
+        <label>UPI app</label>
+        <div class="upi-app-grid">
+          @for (app of upiApps(); track app) {
+            <button
+              type="button"
+              class="upi-chip"
+              [class.active]="upiApp() === app"
+              (click)="upiApp.set(app)"
+            >
+              {{ app }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Description -->
+  <div class="form-group">
+    <label for="description">
+      Description<span class="field-req">*</span>
+    </label>
+    <input
+      id="description"
+      type="text"
+      [value]="description()"
+      (input)="description.set($any($event).target.value)"
+      placeholder="e.g. Monthly rent, WiFi bill"
+    />
+  </div>
+
+  <!-- Status -->
+  <div class="form-group">
+    <label>Status</label>
+    <div class="payment-toggle">
+      <button
+        type="button"
+        class="payment-pill"
+        [class.active]="!paused()"
+        (click)="paused.set(false)"
+      >
+        <span class="pm-icon"><ng-icon name="phosphorPlay" /></span> Active
+      </button>
+      <button
+        type="button"
+        class="payment-pill"
+        [class.active]="paused()"
+        (click)="paused.set(true)"
+      >
+        <span class="pm-icon"><ng-icon name="phosphorPause" /></span> Paused
+      </button>
+    </div>
+    <p class="form-hint">Paused schedules are saved but never run until you resume them.</p>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+    @if (submitting()) {
+      <span class="btn-spinner" aria-hidden="true"></span> Saving…
+    } @else {
+      <ng-icon name="phosphorCheck" /> Save schedule
+    }
+  </button>
+</form>

@@ -1,0 +1,27 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)" (keyup.enter)="closed.emit()" (keyup.space)="closed.emit()" role="button" tabindex="-1" aria-label="Close">
+  <div class="expense-modal scheduled-modal" role="dialog" aria-modal="true" aria-labelledby="scheduled-modal-title">
+    <div class="modal-header">
+      <h2 class="modal-title" id="scheduled-modal-title">
+        <span class="modal-title-icon">
+          @if (editing()) {
+            <ng-icon name="phosphorPencilSimple" />
+          } @else if (isAutoPay()) {
+            <ng-icon name="phosphorRepeat" />
+          } @else {
+            <ng-icon name="phosphorCalendarBlank" />
+          }
+        </span>
+        {{ editing() ? 'Edit' : 'New' }} {{ isAutoPay() ? 'Auto Pay' : 'Scheduled Payment' }}
+      </h2>
+      <button class="modal-close" (click)="closed.emit()" aria-label="Close">
+        <ng-icon name="phosphorX" />
+      </button>
+    </div>
+    <app-scheduled-form
+      [initialPayment]="editing()"
+      [isAutoPay]="isAutoPay()"
+      [submitting]="submitting()"
+      (submitted)="submitted.emit($event)"
+    />
+  </div>
+</div>
