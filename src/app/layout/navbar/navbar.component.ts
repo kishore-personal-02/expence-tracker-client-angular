@@ -9,12 +9,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
 import { NgIcon } from '@ng-icons/core';
 import type { ThemePreference } from '../../core/models/ui.model';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ThemeStore } from '../../core/stores/theme.store';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
+
+/** Matches the `max-width: 768px` breakpoint that reveals the hamburger. */
+const MOBILE_BREAKPOINT = 768;
 
 interface ThemeOption {
   value: ThemePreference;
@@ -61,6 +65,20 @@ export class NavbarComponent {
         document.body.style.overflow = '';
       });
     });
+
+    // Close the drawer whenever routing completes so a tap on a nav item
+    // never leaves the menu covering the page it just navigated to.
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
+      if (this.drawerOpen()) this.drawerOpen.set(false);
+    });
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    // Drop back to the desktop nav once the hamburger no longer applies.
+    if (window.innerWidth > MOBILE_BREAKPOINT && this.drawerOpen()) {
+      this.drawerOpen.set(false);
+    }
   }
 
   closeAll(): void {

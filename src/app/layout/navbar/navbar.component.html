@@ -26,7 +26,7 @@
 
     <div class="navbar-right">
       <!-- Theme picker -->
-      <div class="theme-picker" #themeMenu>
+      <div class="theme-picker navbar-optional" #themeMenu>
         <button
           class="theme-toggle"
           (click)="toggleThemeMenu()"
@@ -58,7 +58,7 @@
       </div>
 
       @if (user(); as user) {
-        <div class="user-menu" #userMenu>
+        <div class="user-menu navbar-optional" #userMenu>
           <button
             class="user-menu-btn"
             (click)="toggleUserMenu()"
@@ -98,8 +98,8 @@
           }
         </div>
       } @else {
-        <a routerLink="/login" class="btn btn-ghost btn-sm">Login</a>
-        <a routerLink="/register" class="btn btn-primary btn-sm">Sign Up</a>
+        <a routerLink="/login" class="btn btn-ghost btn-sm navbar-auth-link">Login</a>
+        <a routerLink="/register" class="btn btn-primary btn-sm navbar-auth-link">Sign Up</a>
       }
 
       <!-- Mobile hamburger -->
@@ -108,6 +108,7 @@
         [class.active]="drawerOpen()"
         (click)="toggleDrawer()"
         aria-label="Open menu"
+        aria-controls="mobile-drawer"
         [attr.aria-expanded]="drawerOpen()"
       >
         <span></span>
@@ -116,101 +117,107 @@
       </button>
     </div>
   </div>
+</nav>
 
-  <!-- Mobile drawer — slides in from the left -->
-  <div class="mobile-drawer" [class.open]="drawerOpen()" [attr.aria-hidden]="!drawerOpen()">
-    <div
-        class="drawer-backdrop"
-        (click)="drawerOpen.set(false)"
-        (keyup.enter)="drawerOpen.set(false)"
-        (keyup.space)="drawerOpen.set(false)"
-        role="button"
-        tabindex="-1"
-        aria-label="Close menu"
-      ></div>
-    <aside class="drawer-panel">
-      <div class="drawer-header">
-        <app-avatar [name]="user()?.name || 'E'" [size]="44" />
-        <div class="drawer-id">
-          @if (user(); as user) {
-            <strong>{{ user.name }}</strong>
-            <span>{{ user.email }}</span>
-          } @else {
-            <strong>Menu</strong>
-          }
-        </div>
-        <button class="drawer-close" (click)="drawerOpen.set(false)" aria-label="Close menu">
-          <ng-icon name="phosphorX" />
-        </button>
-      </div>
-
-      <nav class="drawer-nav">
-        @if (user()) {
-          <a
-            routerLink="/"
-            class="drawer-item"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="closeAll()"
-          >
-            <span class="drawer-item-icon"><ng-icon name="phosphorChartBar" /></span> Dashboard
-          </a>
-          <a routerLink="/import" class="drawer-item" routerLinkActive="active" (click)="closeAll()">
-            <span class="drawer-item-icon"><ng-icon name="phosphorFileArrowUp" /></span> Import
-          </a>
-          <a
-            routerLink="/profile"
-            class="drawer-item"
-            routerLinkActive="active"
-            (click)="closeAll()"
-          >
-            <span class="drawer-item-icon"><ng-icon name="phosphorUser" /></span> Profile
-          </a>
+<!-- Mobile drawer — kept OUTSIDE <nav> because the navbar's backdrop-filter
+     creates a containing block that would trap position:fixed descendants. -->
+<div
+  class="mobile-drawer"
+  id="mobile-drawer"
+  [class.open]="drawerOpen()"
+  [attr.aria-hidden]="!drawerOpen()"
+>
+  <div
+      class="drawer-backdrop"
+      (click)="drawerOpen.set(false)"
+      (keyup.enter)="drawerOpen.set(false)"
+      (keyup.space)="drawerOpen.set(false)"
+      role="button"
+      tabindex="-1"
+      aria-label="Close menu"
+    ></div>
+  <aside class="drawer-panel">
+    <div class="drawer-header">
+      <app-avatar [name]="user()?.name || 'E'" [size]="44" />
+      <div class="drawer-id">
+        @if (user(); as user) {
+          <strong>{{ user.name }}</strong>
+          <span>{{ user.email }}</span>
         } @else {
-          <a routerLink="/login" class="drawer-item" (click)="closeAll()">
-            <span class="drawer-item-icon"><ng-icon name="phosphorKey" /></span> Login
-          </a>
-          <a routerLink="/register" class="drawer-item" (click)="closeAll()">
-            <span class="drawer-item-icon"><ng-icon name="phosphorSparkle" /></span> Sign Up
-          </a>
+          <strong>Menu</strong>
         }
+      </div>
+      <button class="drawer-close" (click)="drawerOpen.set(false)" aria-label="Close menu">
+        <ng-icon name="phosphorX" />
+      </button>
+    </div>
+
+    <nav class="drawer-nav">
+      @if (user()) {
+        <a
+          routerLink="/"
+          class="drawer-item"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeAll()"
+        >
+          <span class="drawer-item-icon"><ng-icon name="phosphorChartBar" /></span> Dashboard
+        </a>
+        <a routerLink="/import" class="drawer-item" routerLinkActive="active" (click)="closeAll()">
+          <span class="drawer-item-icon"><ng-icon name="phosphorFileArrowUp" /></span> Import
+        </a>
+        <a
+          routerLink="/profile"
+          class="drawer-item"
+          routerLinkActive="active"
+          (click)="closeAll()"
+        >
+          <span class="drawer-item-icon"><ng-icon name="phosphorUser" /></span> Profile
+        </a>
+      } @else {
+        <a routerLink="/login" class="drawer-item" (click)="closeAll()">
+          <span class="drawer-item-icon"><ng-icon name="phosphorKey" /></span> Login
+        </a>
+        <a routerLink="/register" class="drawer-item" (click)="closeAll()">
+          <span class="drawer-item-icon"><ng-icon name="phosphorSparkle" /></span> Sign Up
+        </a>
+      }
+    </nav>
+
+    @if (user()) {
+      <div class="drawer-section-title">Settings</div>
+      <nav class="drawer-nav">
+        <a
+          routerLink="/profile"
+          fragment="settings"
+          class="drawer-item"
+          (click)="closeAll()"
+        >
+          <span class="drawer-item-icon"><ng-icon name="phosphorGear" /></span> Settings
+        </a>
       </nav>
 
-      @if (user()) {
-        <div class="drawer-section-title">Settings</div>
-        <nav class="drawer-nav">
-          <a
-            routerLink="/profile"
-            fragment="settings"
-            class="drawer-item"
-            (click)="closeAll()"
+      <div class="drawer-section-title">Theme</div>
+      <div class="drawer-theme">
+        @for (t of themeOptions; track t.value) {
+          <button
+            class="drawer-theme-option"
+            [class.active]="theme() === t.value"
+            (click)="selectTheme(t.value)"
           >
-            <span class="drawer-item-icon"><ng-icon name="phosphorGear" /></span> Settings
-          </a>
-        </nav>
-
-        <div class="drawer-section-title">Theme</div>
-        <div class="drawer-theme">
-          @for (t of themeOptions; track t.value) {
-            <button
-              class="drawer-theme-option"
-              [class.active]="theme() === t.value"
-              (click)="selectTheme(t.value)"
-            >
-              <span class="drawer-theme-icon"><ng-icon [name]="t.icon" /></span>
-              <span>{{ t.label }}</span>
-            </button>
-          }
-        </div>
-      }
-
-      @if (user()) {
-        <div class="drawer-footer">
-          <button class="btn btn-danger btn-block" (click)="handleLogout()">
-            <ng-icon name="phosphorSignOut" /> Logout
+            <span class="drawer-theme-icon"><ng-icon [name]="t.icon" /></span>
+            <span>{{ t.label }}</span>
           </button>
-        </div>
-      }
-    </aside>
-  </div>
-</nav>
+        }
+      </div>
+    }
+
+    @if (user()) {
+      <div class="drawer-footer">
+        <button class="btn btn-danger btn-block" (click)="handleLogout()">
+          <ng-icon name="phosphorSignOut" /> Logout
+        </button>
+      </div>
+    }
+  </aside>
+</div>

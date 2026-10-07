@@ -223,7 +223,7 @@
         </div>
         <p class="setting-desc">Signed in as {{ user()?.email }}. Log out to switch accounts.</p>
         <div class="setting-form">
-          <button type="button" class="btn btn-ghost" (click)="auth.logout()">
+          <button type="button" class="btn btn-ghost" (click)="handleLogout()">
             <ng-icon name="phosphorSignOut" /> Logout
           </button>
         </div>

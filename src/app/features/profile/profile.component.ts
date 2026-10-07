@@ -2,12 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  OnInit,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorDeviceMobile,
@@ -90,12 +91,13 @@ const THEME_OPTIONS: ThemeOption[] = [
     }),
   ],
 })
-export class ProfileComponent implements OnDestroy {
+export class ProfileComponent implements OnInit, OnDestroy {
   private readonly authApi = inject(AuthApi);
   readonly auth = inject(AuthStore);
   private readonly themeStore = inject(ThemeStore);
   private readonly preferences = inject(PreferencesStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly formatCurrency = formatCurrency;
 
@@ -130,12 +132,10 @@ export class ProfileComponent implements OnDestroy {
   readonly customUpiApps = computed(() => this.preferences.prefs().customUpiApps);
 
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private scrollTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
-    this.authApi.profile().subscribe({
-      next: (data) => this.profile.set(data),
-      error: () => this.showMessage('error', 'Failed to load profile'),
-    });
+    this.loadProfile();
     effect(() => {
       const authUser = this.auth.user();
       if (authUser) this.name.set(authUser.name);
@@ -144,6 +144,59 @@ export class ProfileComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.timer) clearTimeout(this.timer);
+    if (this.scrollTimer) clearInterval(this.scrollTimer);
+  }
+
+  ngOnInit(): void {
+    const fragment = this.route.snapshot.fragment;
+    if (fragment) this.scrollToFragment(fragment);
+  }
+
+  /** Scrolls to a hash target (#settings) once the page has rendered. */
+  private scrollToFragment(fragment: string): void {
+    const tryScroll = (): boolean => {
+      const el = document.getElementById(fragment);
+      if (!el) return false;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    };
+    if (tryScroll()) return;
+    // The settings section only renders once the loading state clears.
+    this.scrollTimer = setInterval(() => {
+      if (tryScroll() || !this.loading()) {
+        if (this.scrollTimer) clearInterval(this.scrollTimer);
+        this.scrollTimer = null;
+      }
+    }, 120);
+  }
+
+  /** Loads profile stats. Always clears `loading`, even on failure, so the
+   *  page can still render from the cached auth user instead of hanging on
+   *  the loading state forever. */
+  loadProfile(): void {
+    this.loading.set(true);
+    this.authApi.profile().subscribe({
+      next: (data) => {
+        this.profile.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.profile.set(null);
+        this.loading.set(false);
+        this.showMessage('error', 'Failed to load profile');
+      },
+    });
+  }
+
+  handleLogout(): void {
+    this.closeMessage();
+    this.auth.logout();
+    void this.router.navigate(['/login']);
+  }
+
+  closeMessage(): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.message.set(null);
   }
 
   showMessage(type: Notice['type'], text: string): void {
