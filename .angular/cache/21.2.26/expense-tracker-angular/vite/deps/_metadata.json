@@ -1,0 +1,79 @@
+{
+  "hash": "5512a9f1",
+  "configHash": "e93cf6b4",
+  "lockfileHash": "bc778669",
+  "browserHash": "aa33446c",
+  "optimized": {
+    "@angular/common/http": {
+      "src": "../../../../../../node_modules/@angular/common/fesm2022/http.mjs",
+      "file": "@angular_common_http.js",
+      "fileHash": "e744f3de",
+      "needsInterop": false
+    },
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "d0e4d4f6",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "f0bae591",
+      "needsInterop": false
+    },
+    "@angular/router": {
+      "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
+      "file": "@angular_router.js",
+      "fileHash": "291918c4",
+      "needsInterop": false
+    },
+    "@ng-icons/core": {
+      "src": "../../../../../../node_modules/@ng-icons/core/fesm2022/ng-icons-core.mjs",
+      "file": "@ng-icons_core.js",
+      "fileHash": "1fc67460",
+      "needsInterop": false
+    },
+    "@ng-icons/phosphor-icons/regular": {
+      "src": "../../../../../../node_modules/@ng-icons/phosphor-icons/fesm2022/ng-icons-phosphor-icons-regular.mjs",
+      "file": "@ng-icons_phosphor-icons_regular.js",
+      "fileHash": "a0e38bab",
+      "needsInterop": false
+    },
+    "ng2-charts": {
+      "src": "../../../../../../node_modules/ng2-charts/fesm2022/ng2-charts.mjs",
+      "file": "ng2-charts.js",
+      "fileHash": "9805cee1",
+      "needsInterop": false
+    },
+    "rxjs": {
+      "src": "../../../../../../node_modules/rxjs/dist/esm5/index.js",
+      "file": "rxjs.js",
+      "fileHash": "d7b55505",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-SQNKCISP": {
+      "file": "chunk-SQNKCISP.js"
+    },
+    "chunk-RAMRCYM4": {
+      "file": "chunk-RAMRCYM4.js"
+    },
+    "chunk-EQ6AS3Z7": {
+      "file": "chunk-EQ6AS3Z7.js"
+    },
+    "chunk-2NRUKDXQ": {
+      "file": "chunk-2NRUKDXQ.js"
+    },
+    "chunk-YQPVB7A4": {
+      "file": "chunk-YQPVB7A4.js"
+    },
+    "chunk-RSS3ODKE": {
+      "file": "chunk-RSS3ODKE.js"
+    },
+    "chunk-GOMI4DH3": {
+      "file": "chunk-GOMI4DH3.js"
+    }
+  }
+}
