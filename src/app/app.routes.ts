@@ -24,6 +24,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'import/preview',
+    loadComponent: () =>
+      import('./features/import-preview/import-preview.component').then(
+        (m) => m.ImportPreviewComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'import',
     loadComponent: () => import('./features/import/import.component').then((m) => m.ImportComponent),
     canActivate: [authGuard],

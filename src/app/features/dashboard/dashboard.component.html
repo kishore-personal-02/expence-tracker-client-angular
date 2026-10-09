@@ -11,6 +11,11 @@
     </button>
   </header>
 
+  <!-- Time range filter - shared top area, applies to the whole dashboard -->
+  <div class="dashboard-filterbar">
+    <app-time-filter (rangeChange)="onTimeRangeChange($event)" />
+  </div>
+
   <!-- Summary cards -->
   <section class="dashboard-summary">
     <div class="summary-card highlight">
@@ -43,8 +48,6 @@
       <span class="summary-value">{{ formatCurrency(bankTotal()) }}</span>
       <span class="summary-count">{{ bankCount() }} payment(s)</span>
     </div>
-
-    <app-time-filter (rangeChange)="onTimeRangeChange($event)" />
   </section>
 
   @if (error()) {

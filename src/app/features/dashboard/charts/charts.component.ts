@@ -10,7 +10,7 @@ import type { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 import type { SummaryResponse } from '../../../core/models/expense.model';
 import type { ChartFilter, ChartFilterType } from '../../../core/models/ui.model';
 import { ThemeStore } from '../../../core/stores/theme.store';
-import { PAYMENT_LABELS } from '../../../core/utils/formatters';
+import { formatCurrencyWhole, PAYMENT_LABELS } from '../../../core/utils/formatters';
 import {
   buildCategoryData,
   buildPaymentData,
@@ -20,18 +20,24 @@ import {
 } from './chart-data';
 import {
   areaGradient,
+  areaGradientFrom,
   buildCategoryBarOptions,
+  buildCategoryLineOptions,
   buildCategoryPieOptions,
+  buildPaymentBarOptions,
+  buildPaymentLineOptions,
   buildPaymentOptions,
   buildTrendOptions,
   type ChartVisualContext,
 } from './chart-options';
 import { buildChartTheme, paymentSliceColor, withAlpha } from './chart-theme';
+import { createDoughnutCenterPlugin } from './doughnut-center';
 import { createPaymentLabelsPlugin } from './payment-labels';
 
 interface LegendItem {
   name: string;
   color: string;
+  value: string;
 }
 
 interface PaymentDoughnutDataset extends ChartDataset<'doughnut', number[]> {
@@ -57,7 +63,8 @@ export class ChartsComponent {
 
   private readonly themeStore = inject(ThemeStore);
 
-  readonly categoryChartType = signal<'pie' | 'bar'>('pie');
+  readonly categoryChartType = signal<'pie' | 'bar' | 'line'>('pie');
+  readonly paymentChartType = signal<'pie' | 'bar' | 'line'>('pie');
 
   private readonly theme = computed(() => buildChartTheme(this.themeStore.resolved()));
   private readonly isDark = computed(() => this.themeStore.resolved() === 'dark');
@@ -138,6 +145,28 @@ export class ChartsComponent {
     };
   });
 
+  readonly categoryLineData = computed<ChartData<'line'>>(() => {
+    const theme = this.theme();
+    const stroke = this.categoryColors()[0] || theme.areaGradientTop;
+    return {
+      labels: this.categoryData().map((item) => item.name),
+      datasets: [
+        {
+          data: this.categoryData().map((item) => item.value),
+          borderColor: stroke,
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          pointBackgroundColor: stroke,
+          pointBorderColor: stroke,
+          tension: 0.4,
+          fill: 'origin',
+          backgroundColor: areaGradientFrom(stroke),
+        },
+      ],
+    };
+  });
+
   readonly paymentChartData = computed<ChartData<'doughnut'>>(() => {
     const theme = this.theme();
     const dataset: PaymentDoughnutDataset = {
@@ -166,6 +195,46 @@ export class ChartsComponent {
     return {
       labels: this.paymentData().map((item) => item.name),
       datasets: [dataset],
+    };
+  });
+
+  readonly paymentBarData = computed<ChartData<'bar'>>(() => {
+    const theme = this.theme();
+    return {
+      labels: this.paymentData().map((item) => item.name),
+      datasets: [
+        {
+          data: this.paymentData().map((item) => item.value),
+          backgroundColor: this.paymentColors().map((color, index) =>
+            this.isPaymentFaded(index) ? withAlpha(color, theme.fadedOpacity) : color,
+          ),
+          hoverBackgroundColor: this.paymentColors().map((color, index) =>
+            this.isPaymentFaded(index) ? withAlpha(color, theme.fadedOpacity) : color,
+          ),
+          borderRadius: { topRight: 6, bottomRight: 6 },
+        },
+      ],
+    };
+  });
+
+  readonly paymentLineData = computed<ChartData<'line'>>(() => {
+    const stroke = this.paymentColors()[0] || this.theme().areaGradientTop;
+    return {
+      labels: this.paymentData().map((item) => item.name),
+      datasets: [
+        {
+          data: this.paymentData().map((item) => item.value),
+          borderColor: stroke,
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          pointBackgroundColor: stroke,
+          pointBorderColor: stroke,
+          tension: 0.4,
+          fill: 'origin',
+          backgroundColor: areaGradientFrom(stroke),
+        },
+      ],
     };
   });
 
@@ -207,8 +276,17 @@ export class ChartsComponent {
   readonly categoryBarChartOptions = computed<ChartOptions<'bar'>>(() =>
     buildCategoryBarOptions(this.categoryContext()),
   );
+  readonly categoryLineChartOptions = computed<ChartOptions<'line'>>(() =>
+    buildCategoryLineOptions(this.categoryContext()),
+  );
   readonly paymentChartOptions = computed<ChartOptions<'doughnut'>>(() =>
     buildPaymentOptions(this.paymentContext()),
+  );
+  readonly paymentBarChartOptions = computed<ChartOptions<'bar'>>(() =>
+    buildPaymentBarOptions(this.paymentContext()),
+  );
+  readonly paymentLineChartOptions = computed<ChartOptions<'line'>>(() =>
+    buildPaymentLineOptions(this.paymentContext()),
   );
   readonly trendChartOptions = computed<ChartOptions<'line'>>(() =>
     buildTrendOptions({
@@ -224,6 +302,15 @@ export class ChartsComponent {
     this.categoryData().map((item, index) => ({
       name: item.name,
       color: this.categoryColors()[index],
+      value: formatCurrencyWhole(item.value),
+    })),
+  );
+
+  readonly paymentLegendItems = computed<LegendItem[]>(() =>
+    this.paymentData().map((item, index) => ({
+      name: item.name,
+      color: this.paymentColors()[index],
+      value: formatCurrencyWhole(item.value),
     })),
   );
 
@@ -238,7 +325,31 @@ export class ChartsComponent {
     labelColor: this.theme().labelColor,
   }));
 
-  readonly chartPlugins = [this.paymentLabelsPlugin];
+  private readonly categoryCenterPlugin = createDoughnutCenterPlugin(() => {
+    const total = this.categoryData().reduce((sum, item) => sum + item.value, 0);
+    return total > 0
+      ? {
+          label: 'Total spent',
+          value: formatCurrencyWhole(total),
+          labelColor: this.theme().legendColor,
+          valueColor: this.theme().activeStroke,
+        }
+      : null;
+  });
+
+  private readonly paymentCenterPlugin = createDoughnutCenterPlugin(() => {
+    const total = this.paymentData().reduce((sum, item) => sum + item.value, 0);
+    return total > 0
+      ? {
+          label: 'Total spent',
+          value: formatCurrencyWhole(total),
+          labelColor: this.theme().legendColor,
+          valueColor: this.theme().activeStroke,
+        }
+      : null;
+  });
+
+  readonly chartPlugins = [this.categoryCenterPlugin, this.paymentLabelsPlugin, this.paymentCenterPlugin];
 
   private onSelect(type: ChartFilterType, value: string): void {
     this.filterChange.emit({ type, value });

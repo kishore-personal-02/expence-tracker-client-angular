@@ -1149,25 +1149,59 @@ ng-icon,
 }
 
 /* =============================================
-   TIME FILTER TABS - neutral segmented control
+   TIME FILTER BAR - top shared dashboard filter
    ============================================= */
+.dashboard-filterbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.time-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  animation: fadeInUp var(--duration-slow) var(--ease) 120ms both;
+}
+
+.time-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.time-filter-label ng-icon {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
 .time-range-tabs {
-  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 4px;
-  animation: fadeInUp var(--duration-slow) var(--ease) 120ms both;
+  border-radius: var(--radius-sm);
+  padding: 3px;
 }
 
 .tab-btn {
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   background: transparent;
   font-size: 12px;
   font-weight: 500;
@@ -1198,7 +1232,7 @@ ng-icon,
 }
 
 .date-range-inputs input {
-  padding: 7px 10px;
+  padding: 6px 10px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   font-size: 12px;
@@ -1443,21 +1477,26 @@ ng-icon,
   list-style: none;
   font-size: 13px;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 10px;
 }
 
 .chart-legend-item {
-  display: inline-block;
-  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   white-space: nowrap;
 }
 
 .chart-legend-icon {
   display: inline-block;
   vertical-align: middle;
-  margin-right: 6px;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
 }
 
 .chart-legend-item-text {
@@ -1465,6 +1504,12 @@ ng-icon,
   font-size: 12px;
   white-space: normal;
   overflow-wrap: break-word;
+}
+
+.chart-legend-value {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .chart-canvas-wrap {
@@ -2883,12 +2928,133 @@ ng-icon,
   color: var(--danger);
 }
 
+.amount-missing {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.import-table .amount-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.import-table .amount-input-wrap .currency-symbol {
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.import-table .amount-input-wrap input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.import-table .amount-input-wrap.amount-income input[type='text'] {
+  color: var(--success-text);
+}
+
+.import-table .amount-input-wrap.amount-expense input[type='text'] {
+  color: var(--danger);
+}
+
+.import-table .amount-input-wrap.amount-missing input[type='text'] {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 .import-actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.import-actions .btn-ghost {
+  margin-right: auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 550;
+  text-decoration: none;
+  margin-bottom: 8px;
+  transition: color var(--duration-base) var(--ease);
+}
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+.alert-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: auto;
+}
+
+.alert-link:hover {
+  text-decoration: underline;
+}
+
+.dropzone-formats {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.format-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle, var(--primary-softer));
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.import-file-meta .meta-valid {
+  color: var(--success-text);
+  font-weight: 600;
+}
+
+.import-file-meta .meta-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--warning-text, var(--danger));
+  font-weight: 600;
+}
+
+.row-errors td {
+  padding-top: 0 !important;
+  background: transparent;
+}
+
+.import-errors {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.import-table .col-reference {
+  min-width: 120px;
 }
 
 /* =============================================
@@ -3038,6 +3204,14 @@ ng-icon,
     display: none;
   }
 
+  /* Scheduled Payments is the only page without a FAB, so keep its header
+     button visible on mobile instead. */
+  .scheduled-page .header-add-btn {
+    display: inline-flex;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
   .fab {
     display: flex;
     right: max(16px, env(safe-area-inset-right));
@@ -3084,13 +3258,21 @@ ng-icon,
     font-size: 20px;
   }
 
+  .time-filter {
+    padding: 8px 10px;
+  }
+
+  .time-filter-label {
+    width: 100%;
+  }
+
   .time-range-tabs {
-    grid-column: 1 / -1;
+    flex: 1 1 auto;
     gap: 2px;
   }
 
   .tab-btn {
-    flex: 1 1 calc(33% - 4px);
+    flex: 1 1 auto;
     padding: 8px 6px;
     font-size: 11px;
     text-align: center;
@@ -3099,7 +3281,7 @@ ng-icon,
   .date-range-inputs {
     margin-left: 0;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 4px;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
@@ -3268,7 +3450,16 @@ ng-icon,
   }
 
   .chart-legend-item {
-    margin-right: 8px;
+    margin-right: 0;
+    gap: 5px;
+  }
+
+  .chart-legend-item-text {
+    font-size: 11px;
+  }
+
+  .chart-legend-value {
+    font-size: 11px;
   }
 
   .auth-page {
@@ -3343,11 +3534,18 @@ ng-icon,
   }
 
   .chart-canvas-wrap {
-    height: 215px;
+    height: 200px;
   }
 
   .chart-title {
     margin-bottom: 14px;
+  }
+
+  /* Keep the type switch on one line so the segmented control doesn't wrap
+     into two rows on very narrow screens. */
+  .chart-type-btn {
+    padding: 5px 9px;
+    font-size: 11px;
   }
 
   .expense-form-container,
@@ -3521,6 +3719,21 @@ ng-icon,
 
   .import-preview-header {
     gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .import-preview-header .import-totals {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .import-actions {
+    justify-content: stretch;
+  }
+
+  .import-actions .btn {
+    flex: 1;
+    justify-content: center;
   }
 
   .import-total {

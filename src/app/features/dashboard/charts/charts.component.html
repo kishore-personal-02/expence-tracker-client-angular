@@ -25,6 +25,14 @@
         >
           Bar
         </button>
+        <button
+          type="button"
+          class="chart-type-btn"
+          [class.active]="categoryChartType() === 'line'"
+          (click)="categoryChartType.set('line')"
+        >
+          Graph
+        </button>
       </div>
     </div>
 
@@ -37,6 +45,7 @@
               [type]="'doughnut'"
               [data]="categoryPieData()"
               [options]="categoryPieChartOptions()"
+              [plugins]="chartPlugins"
             ></canvas>
           </div>
           <ul class="chart-legend">
@@ -47,11 +56,12 @@
                   [style.background]="item.color"
                 ></span>
                 <span class="chart-legend-item-text">{{ item.name }}</span>
+                <span class="chart-legend-value">{{ item.value }}</span>
               </li>
             }
           </ul>
         </div>
-      } @else {
+      } @else if (categoryChartType() === 'bar') {
         <div class="chart-canvas-wrap">
           <div class="chart-canvas">
             <canvas
@@ -59,6 +69,17 @@
               [type]="'bar'"
               [data]="categoryBarData()"
               [options]="categoryBarChartOptions()"
+            ></canvas>
+          </div>
+        </div>
+      } @else {
+        <div class="chart-canvas-wrap">
+          <div class="chart-canvas">
+            <canvas
+              baseChart
+              [type]="'line'"
+              [data]="categoryLineData()"
+              [options]="categoryLineChartOptions()"
             ></canvas>
           </div>
         </div>
@@ -73,25 +94,89 @@
 
   <!-- Payment Method -->
   <div class="chart-card">
-    <h3>
-      <span class="chart-icon"><ng-icon name="phosphorCreditCard" /></span> By Payment Method
-      @if (activeFilter()?.type === 'payment') {
-        <span class="chart-active-badge">{{ paymentBadge() }}</span>
-      }
-    </h3>
+    <div class="chart-title">
+      <h3>
+        <span class="chart-icon"><ng-icon name="phosphorCreditCard" /></span> By Payment Method
+        @if (activeFilter()?.type === 'payment') {
+          <span class="chart-active-badge">{{ paymentBadge() }}</span>
+        }
+      </h3>
+      <div class="chart-type-switch">
+        <button
+          type="button"
+          class="chart-type-btn"
+          [class.active]="paymentChartType() === 'pie'"
+          (click)="paymentChartType.set('pie')"
+        >
+          Pie
+        </button>
+        <button
+          type="button"
+          class="chart-type-btn"
+          [class.active]="paymentChartType() === 'bar'"
+          (click)="paymentChartType.set('bar')"
+        >
+          Bar
+        </button>
+        <button
+          type="button"
+          class="chart-type-btn"
+          [class.active]="paymentChartType() === 'line'"
+          (click)="paymentChartType.set('line')"
+        >
+          Graph
+        </button>
+      </div>
+    </div>
 
     @if (paymentData().length > 0) {
-      <div class="chart-canvas-wrap">
-        <div class="chart-canvas">
-          <canvas
-            baseChart
-            [type]="'doughnut'"
-            [data]="paymentChartData()"
-            [options]="paymentChartOptions()"
-            [plugins]="chartPlugins"
-          ></canvas>
+      @if (paymentChartType() === 'pie') {
+        <div class="chart-canvas-wrap">
+          <div class="chart-canvas">
+            <canvas
+              baseChart
+              [type]="'doughnut'"
+              [data]="paymentChartData()"
+              [options]="paymentChartOptions()"
+              [plugins]="chartPlugins"
+            ></canvas>
+          </div>
+          <ul class="chart-legend">
+            @for (item of paymentLegendItems(); track item.name) {
+              <li class="chart-legend-item">
+                <span
+                  class="chart-legend-icon"
+                  [style.background]="item.color"
+                ></span>
+                <span class="chart-legend-item-text">{{ item.name }}</span>
+                <span class="chart-legend-value">{{ item.value }}</span>
+              </li>
+            }
+          </ul>
         </div>
-      </div>
+      } @else if (paymentChartType() === 'bar') {
+        <div class="chart-canvas-wrap">
+          <div class="chart-canvas">
+            <canvas
+              baseChart
+              [type]="'bar'"
+              [data]="paymentBarData()"
+              [options]="paymentBarChartOptions()"
+            ></canvas>
+          </div>
+        </div>
+      } @else {
+        <div class="chart-canvas-wrap">
+          <div class="chart-canvas">
+            <canvas
+              baseChart
+              [type]="'line'"
+              [data]="paymentLineData()"
+              [options]="paymentLineChartOptions()"
+            ></canvas>
+          </div>
+        </div>
+      }
     } @else {
       <div class="chart-placeholder">
         <span class="chart-placeholder-icon"><ng-icon name="phosphorCreditCard" /></span>

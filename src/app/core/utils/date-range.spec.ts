@@ -1,13 +1,14 @@
 import { getDefaultRange, getRange, toInputDate } from './date-range';
 
 describe('date-range', () => {
-  it('bumps the default to the current month start', () => {
+  it('bumps the default to the current year start', () => {
     const range = getDefaultRange();
     expect(range.startDate).toBeTruthy();
     expect(range.endDate).toBeTruthy();
     expect(new Date(range.startDate!).getTime()).toBeLessThanOrEqual(
       new Date(range.endDate!).getTime()
     );
+    expect(new Date(range.startDate!).getFullYear()).toBe(new Date().getFullYear());
   });
 
   it('resolves today as a same-day range', () => {

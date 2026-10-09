@@ -49,7 +49,16 @@ export function formatTrendDate(dateStr: string): string {
 }
 
 export function formatAxisTick(value: number): string {
-  return `₹${(value / 1000).toFixed(0)}k`;
+  const abs = Math.abs(value);
+  if (abs >= 100000) {
+    const l = abs / 100000;
+    return `₹${l.toFixed(Number.isInteger(l) ? 0 : 1)}L`;
+  }
+  if (abs >= 1000) {
+    const k = abs / 1000;
+    return `₹${k.toFixed(Number.isInteger(k) ? 0 : 1)}k`;
+  }
+  return `₹${Math.round(value)}`;
 }
 
 export function capitalise(str = ''): string {

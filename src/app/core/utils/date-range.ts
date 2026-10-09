@@ -9,9 +9,8 @@ export interface RangeOption {
 
 export function getDefaultRange(): DateRange {
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   return {
-    startDate: monthStart.toISOString(),
+    startDate: new Date(now.getFullYear(), 0, 1).toISOString(),
     endDate: now.toISOString(),
   };
 }

@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorCalendarBlank } from '@ng-icons/phosphor-icons/regular';
 import type { DateRange } from '../../../../core/models/ui.model';
 import { getRange, type RangeKey } from '../../../../core/utils/date-range';
 
@@ -12,15 +14,20 @@ const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
 
 @Component({
   selector: 'app-time-filter',
-  imports: [],
+  imports: [NgIcon],
   templateUrl: './time-filter.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    provideIcons({
+      phosphorCalendarBlank,
+    }),
+  ],
 })
 export class TimeFilterComponent {
   readonly rangeChange = output<DateRange>();
 
   readonly rangeOptions = RANGE_OPTIONS;
-  readonly activeRange = signal<RangeKey>('month');
+  readonly activeRange = signal<RangeKey>('year');
   readonly customStart = signal('');
   readonly customEnd = signal('');
 

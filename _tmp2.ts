@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild, type ElementRef } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+﻿import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild, type ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorArrowCounterClockwise,
@@ -8,7 +8,6 @@ import {
   phosphorFilePdf,
   phosphorFileText,
   phosphorFolderOpen,
-  phosphorX,
 } from '@ng-icons/phosphor-icons/regular';
 import { lastValueFrom } from 'rxjs';
 
@@ -19,7 +18,7 @@ import { formatCurrency } from '../../core/utils/formatters';
 
 @Component({
   selector: 'app-import',
-  imports: [NgIcon, RouterLink],
+  imports: [NgIcon],
   templateUrl: './import.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -30,7 +29,6 @@ import { formatCurrency } from '../../core/utils/formatters';
       phosphorFilePdf,
       phosphorFileText,
       phosphorFolderOpen,
-      phosphorX,
     }),
   ],
 })
@@ -61,14 +59,11 @@ export class ImportComponent {
   readonly fileName = this.store.fileName;
   readonly bankName = this.store.bankName;
   readonly warning = this.store.warning;
-  readonly storeHasData = this.store.hasData;
-  readonly resultMessage = this.store.successMessage;
 
   async handleFile(file: File | undefined): Promise<void> {
     if (!file) return;
     this.error.set('');
     this.success.set('');
-    this.store.successMessage.set('');
     this.parsing.set(true);
     try {
       const data = await lastValueFrom(this.importApi.parse(file));
@@ -100,20 +95,16 @@ export class ImportComponent {
     if (file) void this.handleFile(file);
   }
 
-  dismissResult(): void {
-    this.store.successMessage.set('');
-  }
-
   reset(): void {
     this.store.clear();
-    this.store.successMessage.set('');
     this.error.set('');
     this.success.set('');
     const input = this.fileInput()?.nativeElement;
     if (input) input.value = '';
   }
-
-  formatCurrency(amount: number): string {
+\r\n  formatCurrency(amount: number): string {
     return formatCurrency(amount);
-  }
+  }\r\n\r\n  readonly storeHasData = this.store.hasData;
+
+}\r\n\r\n  readonly storeHasData = this.store.hasData;\r\n
 }

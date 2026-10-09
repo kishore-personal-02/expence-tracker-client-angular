@@ -1,14 +1,22 @@
-<div class="time-range-tabs" role="group" aria-label="Time range">
-  @for (opt of rangeOptions; track opt.key) {
-    <button
-      class="tab-btn"
-      [class.active]="activeRange() === opt.key"
-      (click)="handleTabChange(opt.key)"
-      [attr.aria-pressed]="activeRange() === opt.key"
-    >
-      {{ opt.label }}
-    </button>
-  }
+<div class="time-filter">
+  <span class="time-filter-label">
+    <ng-icon name="phosphorCalendarBlank" />
+    <span>Date range</span>
+  </span>
+
+  <div class="time-range-tabs" role="group" aria-label="Time range">
+    @for (opt of rangeOptions; track opt.key) {
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeRange() === opt.key"
+        (click)="handleTabChange(opt.key)"
+        [attr.aria-pressed]="activeRange() === opt.key"
+      >
+        {{ opt.label }}
+      </button>
+    }
+  </div>
 
   @if (activeRange() === 'custom') {
     <div class="date-range-inputs">
@@ -28,6 +36,7 @@
         (change)="customEnd.set($any($event).target.value)"
       />
       <button
+        type="button"
         class="btn btn-sm btn-primary"
         (click)="handleCustomDateChange()"
         [disabled]="!customStart() || !customEnd()"

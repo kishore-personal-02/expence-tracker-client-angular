@@ -33,6 +33,10 @@ export function createPaymentLabelsPlugin(
       const total = state.values.reduce((sum, value) => sum + value, 0);
       if (!total) return;
 
+      // On very small canvases the connector labels run off the edge, so
+      // fall back to the chip legend rendered below the chart instead.
+      if (chart.width < 380) return;
+
       const { ctx } = chart;
       ctx.save();
       ctx.font = '14px system-ui';

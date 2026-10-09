@@ -1,57 +1,99 @@
 import type { Expense, ExpenseType } from './expense.model';
 
-export type TransactionSide = 'debit' | 'credit';
+export type ImportSource = 'pdf' | 'csv';
+export type ImportSide = 'credit' | 'debit';
 
+// A raw row exactly as returned by the backend parse endpoint.
 export interface ParsedTransaction {
-  date: string;
-  rawDate: string | null;
-  narration: string;
+  id: string;
+  date: string | null;
   description: string;
-  amount: number;
-  type: TransactionSide;
+  reference: string | null;
+  amount: number | null;
+  type: ImportSide;
   balance: number | null;
+  category: string;
+  source: ImportSource;
+  confidence: number | null;
+  validationErrors: string[];
+}
+
+export interface ImportSummary {
+  total: number;
+  credits: number;
+  debits: number;
+  totalCredit: number;
+  totalDebit: number;
+  valid: number;
+  needsReview: number;
 }
 
 export interface ParseResponse {
   fileName: string;
   size: number;
-  transactions: ParsedTransaction[];
-  textLength: number;
-  detectedColumns: string[];
+  fileType: ImportSource;
   bankName: string;
-  warning: string;
+  pageCount: number | null;
+  warning: string | null;
+  transactions: ParsedTransaction[];
+  summary: ImportSummary;
 }
 
-export interface ImportEntry {
-  key: string;
+// The editable row held in the import store / preview page.
+export interface ImportRow {
+  id: string;
   date: string;
   description: string;
-  amount: number;
-  type: ExpenseType;
+  reference: string;
+  amount: number | null;
+  balance: number | null;
+  type: ImportSide;
   category: string;
-  selected: boolean;
-}
-
-export interface ImportPayloadEntry {
-  date: string;
-  description: string;
-  amount: number;
-  type: ExpenseType;
-  category: string;
-  bankName: string | null;
-}
-
-export interface ImportPayload {
-  entries: ImportPayloadEntry[];
-}
-
-export interface ImportResponse {
-  imported: number;
-  expenses: Expense[];
+  source: ImportSource;
+  errors: string[];
 }
 
 export interface ImportTotals {
   expense: number;
   income: number;
   count: number;
+}
+
+export interface ConfirmEntry {
+  date: string;
+  description: string;
+  amount: number;
+  type: ImportSide;
+  category: string;
+  reference: string | null;
+  balance: number | null;
+  source: ImportSource;
+}
+
+export interface ConfirmPayload {
+  batchId: string;
+  entries: ConfirmEntry[];
+}
+
+export interface ConfirmResponse {
+  imported: number;
+  duplicate: boolean;
+  expenses: Expense[];
+}
+
+export function rowToEntry(row: ImportRow): ConfirmEntry {
+  return {
+    date: row.date,
+    description: row.description.trim(),
+    amount: Number(row.amount) || 0,
+    type: row.type,
+    category: row.category,
+    reference: row.reference.trim() || null,
+    balance: row.balance,
+    source: row.source,
+  };
+}
+
+export function sideToExpenseType(side: ImportSide): ExpenseType {
+  return side === 'credit' ? 'income' : 'expense';
 }
